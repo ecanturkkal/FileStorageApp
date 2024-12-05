@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStorageApp.API", "FileStorageApp.API\FileStorageApp.API.csproj", "{937ED472-06AB-4CF0-8F65-5C556EB355BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStorageApp.Core", "FileStorageApp.Core\FileStorageApp.Core.csproj", "{6509C4DF-891C-4206-8CA0-8FB47AB4C69E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStorageApp.Infrastructure", "FileStorageApp.Infrastructure\FileStorageApp.Infrastructure.csproj", "{8A8ADAFC-EDF9-4094-8506-25D57C84C166}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStorageApp.Tests", "FileStorageApp.Tests\FileStorageApp.Tests.csproj", "{599F77B3-94BD-48CB-9FC3-7A6B913A2A78}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{937ED472-06AB-4CF0-8F65-5C556EB355BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{937ED472-06AB-4CF0-8F65-5C556EB355BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{937ED472-06AB-4CF0-8F65-5C556EB355BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{937ED472-06AB-4CF0-8F65-5C556EB355BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6509C4DF-891C-4206-8CA0-8FB47AB4C69E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6509C4DF-891C-4206-8CA0-8FB47AB4C69E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6509C4DF-891C-4206-8CA0-8FB47AB4C69E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6509C4DF-891C-4206-8CA0-8FB47AB4C69E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A8ADAFC-EDF9-4094-8506-25D57C84C166}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A8ADAFC-EDF9-4094-8506-25D57C84C166}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A8ADAFC-EDF9-4094-8506-25D57C84C166}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A8ADAFC-EDF9-4094-8506-25D57C84C166}.Release|Any CPU.Build.0 = Release|Any CPU
+		{599F77B3-94BD-48CB-9FC3-7A6B913A2A78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{599F77B3-94BD-48CB-9FC3-7A6B913A2A78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{599F77B3-94BD-48CB-9FC3-7A6B913A2A78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{599F77B3-94BD-48CB-9FC3-7A6B913A2A78}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
