@@ -4,11 +4,7 @@ namespace FileStorageApp.Core.Interfaces
 {
     public interface IFileService
     {
-        Task<FileDto> UploadFileAsync(
-            Stream fileStream,
-            string fileName,
-            long fileSize,
-            Guid? folderId = null);
+        Task<FileDto> UploadFileAsync(Stream fileStream, string fileName, long fileSize, string? folderPath);
         Task<FileDto> GetFileMetadataAsync(Guid fileId);
         Task<Stream> DownloadFileAsync(Guid fileId);
         Task<bool> DeleteFileAsync(Guid fileId);

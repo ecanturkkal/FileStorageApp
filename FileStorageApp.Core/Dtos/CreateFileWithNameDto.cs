@@ -1,7 +1,8 @@
 ﻿namespace FileStorageApp.Core.Dtos
 {
-    public class CreateFolderDto
+    public class CreateFileWithNameDto
     {
+        public required string FileName { get; set; }
         public string? FolderPath { get; set; }
     }
 }

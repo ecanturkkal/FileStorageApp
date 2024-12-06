@@ -85,6 +85,14 @@ namespace FileStorageApp.Infrastructure.Repositories
                         .Include(f => f.Subfolders).ToListAsync();
         }
 
+        public async Task<Folder?> GetFolderByFullDirectoryAsync(string directory)
+        {
+            return await _context.Folders.Where(f => f.FullDirectory == directory).FirstOrDefaultAsync();
+        }
 
+        public async Task<Folder?> GetFolderByNameAsync(string name)
+        {
+            return await _context.Folders.Where(f => f.Name == name).FirstOrDefaultAsync();
+        }
     }
 }

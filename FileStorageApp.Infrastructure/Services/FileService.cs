@@ -4,7 +4,6 @@ using FileStorageApp.Core.Exceptions;
 using FileStorageApp.Core.Interfaces;
 using FileStorageApp.Core.Models;
 using FileStorageApp.Core.Utils;
-using FileStorageApp.Core.Validation;
 using Microsoft.Extensions.Logging;
 using File = FileStorageApp.Core.Models.File;
 
@@ -13,30 +12,40 @@ namespace FileStorageApp.Infrastructure.Services
     public class FileService : IFileService
     {
         private readonly IFileRepository _fileRepository;
+        private readonly IFolderService _folderService;
         private readonly IAzureBlobService _blobService;
         private readonly ILogger<FileService> _logger;
         private readonly IMapper _mapper;
 
         public FileService(
             IFileRepository fileRepository,
+            IFolderService folderService,
             IAzureBlobService blobService,
             ILogger<FileService> logger,
             IMapper mapper)
         {
             _fileRepository = fileRepository;
+            _folderService = folderService;
             _blobService = blobService;
             _logger = logger;
             _mapper = mapper;
         }
 
-        public async Task<FileDto> UploadFileAsync(Stream fileStream, string fileName, long fileSize, Guid? folderId)
+        public async Task<FileDto> UploadFileAsync(Stream fileStream, string fileName, long fileSize, string? folderPath)
         {
             try
-            {            // Validate file
-                FileValidator.ValidateFile(fileSize, fileName);
+            {
+                // Validate file
+                FileServiceValidator.ValidateUploadFileRequest(fileSize, fileName, folderPath);
+                var blobPath = fileName;
+                var folderId = Guid.Empty;
 
-                // Generate unique blob path
-                var blobPath = Utils.GenerateUniqueBlobPath(fileName);
+                if (!string.IsNullOrWhiteSpace(folderPath))
+                {
+                    blobPath = folderPath.EndsWith("/") ? $"{folderPath}{fileName}" : $"{folderPath}/{fileName}";
+                    var folder = await _folderService.CreateFoldersAsync(folderPath);
+                    folderId = folder.Id;
+                }
 
                 // Upload to blob storage
                 var blobUrl = await _blobService.UploadBlobAsync(fileStream, blobPath);
@@ -48,8 +57,8 @@ namespace FileStorageApp.Infrastructure.Services
                     FileExtension = Path.GetExtension(fileName),
                     FileSize = fileSize,
                     StoragePath = blobPath,
-                    OwnerId = new Guid("7bec920a-a90d-486b-d679-08dd15045002"),
-                    FolderId = folderId,
+                    OwnerId = new Guid("79d594f1-2c32-40b5-9718-08dd15fa4367"),
+                    FolderId = folderId == Guid.Empty ? null: folderId,
                     CreatedAt = DateTime.UtcNow,
                     LastModifiedAt = DateTime.UtcNow
                 };
@@ -61,7 +70,7 @@ namespace FileStorageApp.Infrastructure.Services
                     {
                         StoragePath = blobPath,
                         CreatedAt = DateTime.UtcNow,
-                        CreatedById = new Guid("7bec920a-a90d-486b-d679-08dd15045002"),
+                        CreatedById = new Guid("79d594f1-2c32-40b5-9718-08dd15fa4367"),
                     }
                 };
 

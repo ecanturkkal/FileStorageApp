@@ -8,5 +8,7 @@ namespace FileStorageApp.Core.Interfaces
         Task UpdateAsync(Folder folder);
         Task<bool> DeleteAsync(Guid folderId);
         Task<IEnumerable<Folder>> GetUserFoldersAsync(Guid userId);
+        Task<Folder?> GetFolderByNameAsync(string name);
+        Task<Folder?> GetFolderByFullDirectoryAsync(string directory);
     }
 }

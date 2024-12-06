@@ -23,6 +23,8 @@ namespace FileStorageApp.API.Controllers
         /// <param name="fileDto">The file to upload</param>
         /// <returns>Details of the uploaded file</returns>
         [HttpPost("upload")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<FileDto>> UploadFile([FromForm] CreateFileDto fileDto)
         {
             if (fileDto.File == null || fileDto.File.Length == 0)
@@ -34,14 +36,44 @@ namespace FileStorageApp.API.Controllers
                     fileDto.File.OpenReadStream(),
                     fileDto.File.FileName,
                     fileDto.File.Length,
-                    fileDto.FolderId);
+                    fileDto.FolderPath);
 
-                return Ok();
+                return Ok(uploadResult);
             }
             catch (Exception ex)
             {
                 // Detailed logging of the full exception
                 return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Upload a file to a specific folder
+        /// </summary>
+        /// <param name="fileDto">The file to upload</param>
+        /// <returns>Details of the uploaded file</returns>
+        [HttpPost("uploadWfilename")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<FileDto>> UploadFileWithFileName([FromBody] CreateFileWithNameDto fileDto)
+        {
+            if (string.IsNullOrWhiteSpace(fileDto.FileName))
+                return BadRequest("No file uploaded.");
+
+            try
+            {
+                var uploadResult = await _fileService.UploadFileAsync(
+                new MemoryStream(),
+                fileDto.FileName,
+                0,
+                fileDto.FolderPath);
+
+                return Ok(uploadResult);
+            }
+            catch (Exception ex)
+            {
+                // Detailed logging of the full exception
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Reason: {ex.InnerException}");
             }
         }
 

@@ -18,26 +18,6 @@ namespace FileStorageApp.API.Controllers
         }
 
         /// <summary>
-        /// Create a new folder
-        /// </summary>
-        /// <param name="folderDto">Folder creation details</param>
-        /// <returns>Created folder details</returns>
-        [HttpPost("create")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<FolderDto>> CreateFolder([FromBody] CreateFolderDto folderDto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var createdFolder = await _folderService.CreateFolderAsync(folderDto);
-            return CreatedAtAction(
-                nameof(GetFolder),
-                new { folderId = createdFolder.Id },
-                createdFolder);
-        }
-
-        /// <summary>
         /// Get folder details and contents
         /// </summary>
         /// <param name="folderId">Unique identifier of the folder</param>

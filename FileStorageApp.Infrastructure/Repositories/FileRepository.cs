@@ -3,6 +3,7 @@ using FileStorageApp.Core.Interfaces;
 using FileStorageApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using File = FileStorageApp.Core.Models.File;
 
 namespace FileStorageApp.Infrastructure.Repositories
 {
@@ -17,7 +18,7 @@ namespace FileStorageApp.Infrastructure.Repositories
             _logger = logger;
         }
 
-        public async Task<Core.Models.File> AddAsync(Core.Models.File file)
+        public async Task<File> AddAsync(File file)
         {
             try
             {
@@ -32,7 +33,7 @@ namespace FileStorageApp.Infrastructure.Repositories
             }
         }
 
-        public async Task UpdateAsync(Core.Models.File file)
+        public async Task UpdateAsync(File file)
         {
             try
             {
@@ -72,7 +73,7 @@ namespace FileStorageApp.Infrastructure.Repositories
             }
         }
 
-        public async Task<Core.Models.File?> GetByIdAsync(Guid fileId)
+        public async Task<File?> GetByIdAsync(Guid fileId)
         {
             return await _context.Files.Include(f => f.Owner)
                         .Include(f => f.Folder)
@@ -80,7 +81,7 @@ namespace FileStorageApp.Infrastructure.Repositories
                         .FirstOrDefaultAsync(f => f.Id == fileId);
         }
 
-        public async Task<IEnumerable<Core.Models.File>> GetUserFilesAsync(Guid userId)
+        public async Task<IEnumerable<File>> GetUserFilesAsync(Guid userId)
         {
             return await _context.Files.Where(f => f.OwnerId == userId)
                         .Include(f => f.Folder).ToListAsync();

@@ -60,10 +60,5 @@ namespace FileStorageApp.Infrastructure.Services
                 throw new FileStorageException("Failed to download file", ex);
             }
         }
-
-        public Task<string> CreateFolderAsync(string folderPath)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
