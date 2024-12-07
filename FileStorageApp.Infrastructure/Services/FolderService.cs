@@ -36,19 +36,19 @@ namespace FileStorageApp.Infrastructure.Services
                 if (string.IsNullOrWhiteSpace(folderPath))
                     return new FolderDto();
 
-                var existingFolder = await _folderRepository.GetFolderByFullDirectoryAsync(folderPath);
+                var existingFolder = await _folderRepository.GetFolderByStoragePathAsync(folderPath);
                 if (existingFolder != null)
                     return _mapper.Map<FolderDto>(existingFolder);
 
                 var folder = new FolderDto();
                 var folders = folderPath.Split('/');
-                var fullDirectory = "";
+                var storagePath = "";
 
                 foreach (var folderName in folders)
                 {
                     if (!string.IsNullOrWhiteSpace(folderName))
                     {
-                        fullDirectory = string.IsNullOrWhiteSpace(fullDirectory) ? folderName : $"{fullDirectory}/{folderName}";
+                        storagePath = string.IsNullOrWhiteSpace(storagePath) ? folderName : $"{storagePath}/{folderName}";
                         existingFolder = await _folderRepository.GetFolderByNameAsync(folderName);
                         if (existingFolder != null)
                         {
@@ -61,8 +61,7 @@ namespace FileStorageApp.Infrastructure.Services
                             Name = folderName,
                             ParentFolderId = folder.Id == Guid.Empty ? null : folder.Id,
                             OwnerId = _userService.GetCurrentUserId(),
-                            CreatedAt = DateTime.UtcNow,
-                            FullDirectory = fullDirectory
+                            StoragePath = storagePath,
                         };
 
                         // Save to database
@@ -81,19 +80,23 @@ namespace FileStorageApp.Infrastructure.Services
             }
         }
 
-        public Task<bool> DeleteFolderAsync(Guid folderId)
+        public async Task<bool> DeleteFolderAsync(Guid folderId)
         {
-            throw new NotImplementedException();
+            var folder = await _folderRepository.GetByIdAsync(folderId);
+
+            if (folder == null)
+                throw new FileStorageException($"Folder with ID {folderId} not found.");
+
+            await _blobService.DeleteBlobAsync(folder.StoragePath);
+
+            var result = await _folderRepository.DeleteAsync(folderId);
+            return result;
         }
 
-        public Task<FolderDetailsDto> GetFolderDetailsAsync(Guid folderId)
+        public async Task<FolderDetailsDto> GetFolderDetailsAsync(Guid folderId)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<FolderDto>> GetUserFoldersAsync(Guid userId)
-        {
-            throw new NotImplementedException();
+            var folder = await _folderRepository.GetByIdAsync(folderId);
+            return _mapper.Map<FolderDetailsDto>(folder);
         }
     }
 }

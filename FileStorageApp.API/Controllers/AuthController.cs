@@ -16,20 +16,37 @@ public class AuthController : ControllerBase
         _userService = userService;
     }
 
+    /// <summary>
+    /// Login to File Storage Api
+    /// </summary>
+    /// <param name="loginDto">Login params: username and email</param>
+    /// <returns>Token</returns>
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
-        // Validate user credentials 
-        var userId = await GetUserIdIfExists(loginDto);
-        if (!string.IsNullOrWhiteSpace(userId))
+        try
         {
-            var token = _tokenService.GenerateJwtToken(userId);
-            return Ok(new { Token = token });
-        }
+            // Validate user credentials 
+            var userId = await GetUserIdIfExists(loginDto);
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                var token = _tokenService.GenerateJwtToken(userId);
+                return Ok(new { Token = token });
+            }
 
-        return Unauthorized();
+            return Unauthorized();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Detail: {ex.InnerException}");
+        }
     }
 
+    /// <summary>
+    /// Create new user
+    /// </summary>
+    /// <param name="userDto">Main user info</param>
+    /// <returns>Created user</returns>
     [HttpPost("createUser")]
     public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto userDto)
     {
@@ -43,15 +60,26 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Reason: {ex.InnerException}");
+            return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Detail: {ex.InnerException}");
         }
     }
 
+    /// <summary>
+    /// List all users
+    /// </summary>
+    /// <returns>User list</returns>
     [HttpGet("getUsers")]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
     {
-        var users = await _userService.GetUsersAsync();
-        return Ok(users);
+        try
+        {
+            var users = await _userService.GetUsersAsync();
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Detail: {ex.InnerException}");
+        }
     }
 
     private async Task<string> GetUserIdIfExists(LoginDto loginDto)
@@ -61,7 +89,7 @@ public class AuthController : ControllerBase
         if (user == null)
             return string.Empty;
 
-        if (user.Username == loginDto.Username && user.Email == loginDto.Email)
+        if (user.Username == loginDto.Username && user.Password == loginDto.Password)
             return user.Id.ToString();
 
         return string.Empty;

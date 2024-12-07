@@ -12,7 +12,7 @@ namespace FileStorageApp.Core.Models
         public Guid OwnerId { get; set; }
         public Guid? ParentFolderId { get; set; }
         public DateTime CreatedAt { get; set; }
-        public string? FullDirectory { get; set; }
+        public required string StoragePath { get; set; }
         public User Owner { get; set; }
         public Folder ParentFolder { get; set; }
 

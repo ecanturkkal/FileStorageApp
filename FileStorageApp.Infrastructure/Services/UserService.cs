@@ -35,8 +35,9 @@ namespace FileStorageApp.Infrastructure.Services
             // Create user entity
             var user = new User
             {
-                Email = userDto.Email,
                 Username = userDto.Username,
+                Email = userDto.Email,
+                Password = userDto.Password,
                 CreatedAt = userDto.CreatedAt
             };
 

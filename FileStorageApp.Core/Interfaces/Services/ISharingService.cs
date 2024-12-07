@@ -6,6 +6,6 @@ namespace FileStorageApp.Core.Interfaces
     {
         Task<ShareDto> CreateShareAsync(CreateShareRequestDto shareRequest);
         Task<IEnumerable<ShareDto>> GetSharesForResourceAsync(Guid resourceId);
-        Task<bool> RevokeShareAsync(Guid shareId);
+        bool HasSharePermission(Guid resourceId, Guid userId);
     }
 }

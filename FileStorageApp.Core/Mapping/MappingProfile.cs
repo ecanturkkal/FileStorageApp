@@ -11,8 +11,19 @@ namespace FileStorageApp.Core.Mapping
         {
             // Configure mapping
             CreateMap<User, UserDto>();
-            CreateMap<File, FileDto>();
-            CreateMap<Folder, FolderDto>();
+
+            CreateMap<File, FileDto>()
+                .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner.Username));
+
+            CreateMap<Folder, FolderDto>()
+                .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner.Username))
+                .ForMember(dest => dest.FileCount, opt => opt.MapFrom(src => src.Files.Count))
+                .ForMember(dest => dest.SubfolderCount, opt => opt.MapFrom(src => src.Subfolders.Count));
+
+            CreateMap<Folder, FolderDetailsDto>()
+                .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner.Username))
+                .ForMember(dest => dest.FileCount, opt => opt.MapFrom(src => src.Files.Count))
+                .ForMember(dest => dest.SubfolderCount, opt => opt.MapFrom(src => src.Subfolders.Count));
         }
     }
 }

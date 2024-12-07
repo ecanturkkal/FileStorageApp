@@ -33,37 +33,18 @@ namespace FileStorageApp.Infrastructure.Repositories
             }
         }
 
-        public async Task UpdateAsync(Folder folder)
-        {
-            try
-            {
-                _context.Folders.Update(folder);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating folder");
-                throw new FileStorageException("Failed to update folder", ex);
-            }
-        }
-
         public async Task<bool> DeleteAsync(Guid folderId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var folder = await _context.Folders
+                    .Include(f => f.Files)
                     .Include(f => f.Subfolders)
                     .FirstOrDefaultAsync(f => f.Id == folderId);
 
                 if (folder == null)
                     return false;
-
-                // Delete file versions from blob storage
-                //foreach (var version in file.Versions)
-                //{
-                //    await _blobService.DeleteBlobAsync(version.StoragePath);
-                //}
 
                 _context.Folders.Remove(folder);
                 await _context.SaveChangesAsync();
@@ -78,16 +59,18 @@ namespace FileStorageApp.Infrastructure.Repositories
                 throw new FileStorageException("Failed to delete folder", ex);
             }
         }
-
-        public async Task<IEnumerable<Folder>> GetUserFoldersAsync(Guid userId)
+        
+        public async Task<Folder?> GetByIdAsync(Guid folderId)
         {
-            return await _context.Folders.Where(f => f.OwnerId == userId)
-                        .Include(f => f.Subfolders).ToListAsync();
+            return await _context.Folders.Include(f => f.Owner)
+                .Include(f => f.Subfolders)
+                .Include(f => f.Files)
+                .FirstOrDefaultAsync(f => f.Id == folderId);
         }
 
-        public async Task<Folder?> GetFolderByFullDirectoryAsync(string directory)
+        public async Task<Folder?> GetFolderByStoragePathAsync(string storagePath)
         {
-            return await _context.Folders.Where(f => f.FullDirectory == directory).FirstOrDefaultAsync();
+            return await _context.Folders.Where(f => f.StoragePath == storagePath).FirstOrDefaultAsync();
         }
 
         public async Task<Folder?> GetFolderByNameAsync(string name)

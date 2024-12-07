@@ -24,16 +24,21 @@ namespace FileStorageApp.API.Controllers
         /// <param name="folderId">Unique identifier of the folder</param>
         /// <returns>Folder details with files and subfolders</returns>
         [HttpGet("{folderId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<FolderDetailsDto>> GetFolder(Guid folderId)
         {
-            var folder = await _folderService.GetFolderDetailsAsync(folderId);
+            try
+            {
+                var folder = await _folderService.GetFolderDetailsAsync(folderId);
 
-            if (folder == null)
-                return NotFound();
+                if (folder == null)
+                    return NotFound();
 
-            return Ok(folder);
+                return Ok(folder);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Detail: {ex.InnerException}");
+            }
         }
 
         /// <summary>
@@ -42,13 +47,17 @@ namespace FileStorageApp.API.Controllers
         /// <param name="folderId">Unique identifier of the folder</param>
         /// <returns>Deletion result</returns>
         [HttpDelete("{folderId}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteFolder(Guid folderId)
         {
-            var deleted = await _folderService.DeleteFolderAsync(folderId);
-
-            return deleted ? NoContent() : NotFound();
+            try
+            {
+                var deleted = await _folderService.DeleteFolderAsync(folderId);
+                return deleted ? Ok(deleted) : NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Detail: {ex.InnerException}");
+            }
         }
     }
 }

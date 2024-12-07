@@ -12,15 +12,13 @@ namespace FileStorageApp.Core.Models
 
         [StringLength(50)]
         public required string FileExtension { get; set; }
-
-        [StringLength(255)]
-        public required string StoragePath { get; set; }
-
         public long FileSize { get; set; }
         public Guid OwnerId { get; set; }
         public Guid? FolderId { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime LastModifiedAt { get; set; }
+        public required string StoragePath { get; set; }
+
         public User Owner { get; set; }
         public Folder? Folder { get; set; }
 

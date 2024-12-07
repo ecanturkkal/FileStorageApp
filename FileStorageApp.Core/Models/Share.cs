@@ -9,12 +9,12 @@ namespace FileStorageApp.Core.Models
         public Guid ResourceId { get; set; } // Can be FileId or FolderId
         public ResourceType ResourceType { get; set; }
         public Guid SharedById { get; set; }
-        public User SharedBy { get; set; }
         public Guid SharedWithId { get; set; }
-        public User SharedWith { get; set; }
         public SharePermission Permission { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? ExpiresAt { get; set; }
+        public User SharedBy { get; set; }
+        public User SharedWith { get; set; }
     }
 
     public enum ResourceType

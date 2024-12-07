@@ -27,7 +27,7 @@ namespace FileStorageApp.API.Controllers
         {
             try
             {
-                if (fileDto.File == null || fileDto.File.Length == 0)
+                if (fileDto.File == null)
                     return BadRequest("No file uploaded.");
 
                 var uploadResult = await _fileService.UploadFileAsync(
@@ -40,8 +40,7 @@ namespace FileStorageApp.API.Controllers
             }
             catch (Exception ex)
             {
-                // Detailed logging of the full exception
-                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Detail: {ex.InnerException}");
             }
         }
 
@@ -69,7 +68,7 @@ namespace FileStorageApp.API.Controllers
             catch (Exception ex)
             {
                 // Detailed logging of the full exception
-                return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Reason: {ex.InnerException}");
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Detail: {ex.InnerException}");
             }
         }
 
@@ -81,12 +80,19 @@ namespace FileStorageApp.API.Controllers
         [HttpGet("{fileId}")]
         public async Task<ActionResult<FileDto>> GetFileMetadata(Guid fileId)
         {
-            var file = await _fileService.GetFileMetadataAsync(fileId);
+            try
+            {
+                var file = await _fileService.GetFileMetadataAsync(fileId);
 
-            if (file == null)
-                return NotFound();
+                if (file == null)
+                    return NotFound();
 
-            return Ok(file);
+                return Ok(file);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Detail: {ex.InnerException}");
+            }
         }
 
         /// <summary>
@@ -97,13 +103,20 @@ namespace FileStorageApp.API.Controllers
         [HttpGet("download/{fileId}")]
         public async Task<IActionResult> DownloadFile(Guid fileId)
         {
-            var fileStream = await _fileService.DownloadFileAsync(fileId);
+            try
+            {
+                var fileStream = await _fileService.DownloadFileAsync(fileId);
 
-            if (fileStream == null)
-                return NotFound();
+                if (fileStream == null)
+                    return NotFound();
 
-            var file = await _fileService.GetFileMetadataAsync(fileId);
-            return File(fileStream, "application/octet-stream", file.FileName);
+                var file = await _fileService.GetFileMetadataAsync(fileId);
+                return File(fileStream, "application/octet-stream", file.FileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Detail: {ex.InnerException}");
+            }
         }
 
         /// <summary>
@@ -114,24 +127,15 @@ namespace FileStorageApp.API.Controllers
         [HttpDelete("{fileId}")]
         public async Task<IActionResult> DeleteFile(Guid fileId)
         {
-            var deleted = await _fileService.DeleteFileAsync(fileId);
-            return deleted ? NoContent() : NotFound();
-        }
-
-        /// <summary>
-        /// Get file versions for a specific file
-        /// </summary>
-        /// <param name="fileId">Unique identifier of the file</param>
-        /// <returns>List of file versions</returns>
-        [HttpGet("{fileId}/versions")]
-        public async Task<ActionResult<IEnumerable<FileVersionDto>>> GetFileVersions(Guid fileId)
-        {
-            var versions = await _fileService.GetFileVersionsAsync(fileId);
-
-            if (versions == null || !versions.Any())
-                return NotFound();
-
-            return Ok(versions);
+            try
+            {
+                var deleted = await _fileService.DeleteFileAsync(fileId);
+                return deleted ? Ok(deleted) : NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}, Detail: {ex.InnerException}");
+            }
         }
     }
 }

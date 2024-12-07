@@ -6,6 +6,5 @@ namespace FileStorageApp.Core.Interfaces
         Task<FolderDto> CreateFoldersAsync(string? folderPath);
         Task<FolderDetailsDto> GetFolderDetailsAsync(Guid folderId);
         Task<bool> DeleteFolderAsync(Guid folderId);
-        Task<IEnumerable<FolderDto>> GetUserFoldersAsync(Guid userId);
     }
 }

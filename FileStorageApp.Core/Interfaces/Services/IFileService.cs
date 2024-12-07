@@ -8,6 +8,5 @@ namespace FileStorageApp.Core.Interfaces
         Task<FileDto> GetFileMetadataAsync(Guid fileId);
         Task<Stream> DownloadFileAsync(Guid fileId);
         Task<bool> DeleteFileAsync(Guid fileId);
-        Task<IEnumerable<FileVersionDto>> GetFileVersionsAsync(Guid fileId);
     }
 }

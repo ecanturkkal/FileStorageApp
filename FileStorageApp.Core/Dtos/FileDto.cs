@@ -10,7 +10,7 @@ namespace FileStorageApp.Core.Dtos
         public long FileSize { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime LastModifiedAt { get; set; }
-        public Guid? FolderId { get; set; }
-        public SharePermission UserPermission { get; set; }
+        public string Owner { get; set; }
+        public string StoragePath { get; set; }
     }
 }

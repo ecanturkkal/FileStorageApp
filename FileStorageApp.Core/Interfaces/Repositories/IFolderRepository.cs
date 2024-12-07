@@ -5,10 +5,9 @@ namespace FileStorageApp.Core.Interfaces
     public interface IFolderRepository
     {
         Task<Folder> AddAsync(Folder folder);
-        Task UpdateAsync(Folder folder);
         Task<bool> DeleteAsync(Guid folderId);
-        Task<IEnumerable<Folder>> GetUserFoldersAsync(Guid userId);
+        Task<Folder?> GetByIdAsync(Guid folderId);
         Task<Folder?> GetFolderByNameAsync(string name);
-        Task<Folder?> GetFolderByFullDirectoryAsync(string directory);
+        Task<Folder?> GetFolderByStoragePathAsync(string storagePath);
     }
 }
