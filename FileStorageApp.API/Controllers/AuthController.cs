@@ -56,7 +56,7 @@ public class AuthController : ControllerBase
 
     private async Task<string> GetUserIdIfExists(LoginDto loginDto)
     {
-        var user = await _userService.GetUserAsync(loginDto.Username);
+        var user = await _userService.GetUserByUsernameAsync(loginDto.Username);
 
         if (user == null)
             return string.Empty;

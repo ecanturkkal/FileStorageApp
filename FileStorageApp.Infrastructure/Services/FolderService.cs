@@ -3,27 +3,27 @@ using FileStorageApp.Core.Dtos;
 using FileStorageApp.Core.Exceptions;
 using FileStorageApp.Core.Interfaces;
 using FileStorageApp.Core.Models;
-using FileStorageApp.Core.Utils;
-using FileStorageApp.Infrastructure.Repositories;
 using Microsoft.Extensions.Logging;
-using System.IO;
 
 namespace FileStorageApp.Infrastructure.Services
 {
     public class FolderService : IFolderService
     {
         private readonly IFolderRepository _folderRepository;
+        private readonly IUserService _userService;
         private readonly IAzureBlobService _blobService;
         private readonly ILogger<FolderService> _logger;
         private readonly IMapper _mapper;
 
         public FolderService(
             IFolderRepository folderRepository,
+            IUserService userService,
             IAzureBlobService blobService,
             ILogger<FolderService> logger,
             IMapper mapper)
         {
             _folderRepository = folderRepository;
+            _userService = userService;
             _blobService = blobService;
             _logger = logger;
             _mapper = mapper;
@@ -60,7 +60,7 @@ namespace FileStorageApp.Infrastructure.Services
                         {
                             Name = folderName,
                             ParentFolderId = folder.Id == Guid.Empty ? null : folder.Id,
-                            OwnerId = new Guid("79d594f1-2c32-40b5-9718-08dd15fa4367"),
+                            OwnerId = _userService.GetCurrentUserId(),
                             CreatedAt = DateTime.UtcNow,
                             FullDirectory = fullDirectory
                         };

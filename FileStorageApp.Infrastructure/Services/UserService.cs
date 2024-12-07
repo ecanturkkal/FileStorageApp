@@ -47,7 +47,7 @@ namespace FileStorageApp.Infrastructure.Services
             return _mapper.Map<UserDto>(user);
         }
 
-        public async Task<UserDto> GetUserAsync(string username)
+        public async Task<UserDto> GetUserByUsernameAsync(string username)
         {
             try
             {
