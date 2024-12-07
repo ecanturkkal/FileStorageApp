@@ -1,5 +1,4 @@
 ﻿using FileStorageApp.Core.Dtos;
-using FileStorageApp.Core.Models;
 
 namespace FileStorageApp.Core.Interfaces
 {
@@ -7,6 +6,7 @@ namespace FileStorageApp.Core.Interfaces
     {
         Task<UserDto> CreateUserAsync(CreateUserDto user);
         Task<UserDto> GetUserAsync(string userName);
+        Task<IEnumerable<UserDto>> GetUsersAsync();
         Guid GetCurrentUserId();
         string GetCurrentUserEmail();
     }

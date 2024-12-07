@@ -3,7 +3,9 @@ using FileStorageApp.Core.Dtos;
 using FileStorageApp.Core.Interfaces;
 using FileStorageApp.Core.Models;
 using FileStorageApp.Infrastructure.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace FileStorageApp.Infrastructure.Services
 {
@@ -11,16 +13,19 @@ namespace FileStorageApp.Infrastructure.Services
     {
         private readonly FileStorageDbContext _context;
         private readonly IUserRepository _userRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<UserService> _logger;
         private readonly IMapper _mapper;
 
         public UserService(FileStorageDbContext context,
             IUserRepository userRepository,
+            IHttpContextAccessor httpContextAccessor,
             ILogger<UserService> logger, 
             IMapper mapper)
         {
             _context = context;
             _userRepository = userRepository;
+            _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _mapper = mapper;
         }
@@ -59,6 +64,12 @@ namespace FileStorageApp.Infrastructure.Services
             }
         }
 
+        public async Task<IEnumerable<UserDto>> GetUsersAsync()
+        {
+            var users = await _userRepository.GetUsersAsync();
+            return _mapper.Map<IEnumerable<UserDto>>(users);
+        }
+
         public string GetCurrentUserEmail()
         {
             throw new NotImplementedException();
@@ -66,7 +77,9 @@ namespace FileStorageApp.Infrastructure.Services
 
         public Guid GetCurrentUserId()
         {
-            throw new NotImplementedException();
+            var claims = _httpContextAccessor.HttpContext?.User.Claims;
+            var userId = claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            return string.IsNullOrWhiteSpace(userId) ? Guid.Empty : new Guid(userId);
         }
     }
 }

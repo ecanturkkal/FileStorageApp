@@ -4,8 +4,8 @@ namespace FileStorageApp.Core.Utils
 {
     public class FileServiceValidator
     {
-        private const long MaxFileSizeMB = 100; // 100 MB
-        private const long MaxFileSize = 100 * 1024 * 1024;
+        private const long MaxFileSizeMB = 50; // 50 MB
+        private const long MaxFileSize = 50 * 1024 * 1024;
 
         private static readonly string[] AllowedFileExtensions =
         {
@@ -14,23 +14,6 @@ namespace FileStorageApp.Core.Utils
 
         public static void ValidateUploadFileRequest(long fileSize, string fileName, string? folderPath)
         {
-            //if (!string.IsNullOrWhiteSpace(folderId) && !string.IsNullOrWhiteSpace(folderPath))
-            //    throw new FileStorageException("You cannot upload file with folderId and folderPath. " +
-            //        "Either both must be empty or one of them must be existed.");
-
-            //// Check folderId for Guid format
-            //if (!string.IsNullOrWhiteSpace(folderId))
-            //{
-            //    try
-            //    {
-            //        new Guid(folderId);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        throw new FileStorageException($"Invalid folder Id: {ex.Message}");
-            //    }
-            //}
-
             // Check folder path
             if (!string.IsNullOrWhiteSpace(folderPath))
             {

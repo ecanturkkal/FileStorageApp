@@ -1,5 +1,4 @@
-﻿using FileStorageApp.Core.Models;
-namespace FileStorageApp.Core.Dtos
+﻿namespace FileStorageApp.Core.Dtos
 {
     public class UserDto
     {

@@ -5,9 +5,12 @@ using FileStorageApp.Core.Mapping;
 using FileStorageApp.Infrastructure.Data;
 using FileStorageApp.Infrastructure.Repositories;
 using FileStorageApp.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 public class Program
 {
@@ -15,16 +18,6 @@ public class Program
     {
 
         var builder = WebApplication.CreateBuilder(args);
-
-        // Configure Authentication
-        //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        //    .AddJwtBearer(options =>
-        //    {
-        //        // Configure JWT Bearer authentication
-        //        // You'll need to replace these with your actual Auth0 or Firebase settings
-        //        options.Authority = builder.Configuration["Authentication:Authority"];
-        //        options.Audience = builder.Configuration["Authentication:Audience"];
-        //    });
 
         // Configure Database
         builder.Services.AddDbContext<FileStorageDbContext>(options =>
@@ -38,6 +31,8 @@ public class Program
         {
             options.MultipartBodyLengthLimit = 50 * 1024 * 1024; // 50 MB
         });
+
+        builder.Services.AddSingleton<TokenService>();
 
         builder.Services.AddSingleton(sp =>
         {
@@ -59,6 +54,25 @@ public class Program
 
         builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+        // Configure Authentication
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                };
+            });
+
+        builder.Services.AddHttpContextAccessor();
+
         // Swagger Configuration
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(c =>
@@ -71,14 +85,31 @@ public class Program
 
             //c.OperationFilter<FileUploadOperationFilter>();
 
-            // Configure Swagger to use JWT authentication
-            //c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            //{
-            //    Description = "JWT Authorization header using the Bearer scheme",
-            //    Name = "Authorization",
-            //    In = ParameterLocation.Header,
-            //    Type = SecuritySchemeType.ApiKey
-            //});
+            // JWT Authorization configuration
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "JWT Authorization header using the Bearer scheme."
+            });
+
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] {}
+                }
+            });
         });
 
         // Add CORS to allow file uploads from different origins

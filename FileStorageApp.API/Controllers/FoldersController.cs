@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FileStorageApp.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class FoldersController : ControllerBase

@@ -13,6 +13,7 @@ namespace FileStorageApp.Infrastructure.Services
     {
         private readonly IFileRepository _fileRepository;
         private readonly IFolderService _folderService;
+        private readonly IUserService _userService;
         private readonly IAzureBlobService _blobService;
         private readonly ILogger<FileService> _logger;
         private readonly IMapper _mapper;
@@ -20,12 +21,14 @@ namespace FileStorageApp.Infrastructure.Services
         public FileService(
             IFileRepository fileRepository,
             IFolderService folderService,
+            IUserService userService,
             IAzureBlobService blobService,
             ILogger<FileService> logger,
             IMapper mapper)
         {
             _fileRepository = fileRepository;
             _folderService = folderService;
+            _userService = userService;
             _blobService = blobService;
             _logger = logger;
             _mapper = mapper;
@@ -57,7 +60,7 @@ namespace FileStorageApp.Infrastructure.Services
                     FileExtension = Path.GetExtension(fileName),
                     FileSize = fileSize,
                     StoragePath = blobPath,
-                    OwnerId = new Guid("79d594f1-2c32-40b5-9718-08dd15fa4367"),
+                    OwnerId = _userService.GetCurrentUserId(),
                     FolderId = folderId == Guid.Empty ? null: folderId,
                     CreatedAt = DateTime.UtcNow,
                     LastModifiedAt = DateTime.UtcNow
@@ -70,7 +73,7 @@ namespace FileStorageApp.Infrastructure.Services
                     {
                         StoragePath = blobPath,
                         CreatedAt = DateTime.UtcNow,
-                        CreatedById = new Guid("79d594f1-2c32-40b5-9718-08dd15fa4367"),
+                        CreatedById = _userService.GetCurrentUserId(),
                     }
                 };
 

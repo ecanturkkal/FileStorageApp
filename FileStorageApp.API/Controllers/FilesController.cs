@@ -1,11 +1,11 @@
 ﻿using FileStorageApp.Core.Dtos;
 using FileStorageApp.Core.Interfaces;
-using FileStorageApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FileStorageApp.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class FilesController : ControllerBase
@@ -23,15 +23,13 @@ namespace FileStorageApp.API.Controllers
         /// <param name="fileDto">The file to upload</param>
         /// <returns>Details of the uploaded file</returns>
         [HttpPost("upload")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<FileDto>> UploadFile([FromForm] CreateFileDto fileDto)
         {
-            if (fileDto.File == null || fileDto.File.Length == 0)
-                return BadRequest("No file uploaded.");
-
             try
             {
+                if (fileDto.File == null || fileDto.File.Length == 0)
+                    return BadRequest("No file uploaded.");
+
                 var uploadResult = await _fileService.UploadFileAsync(
                     fileDto.File.OpenReadStream(),
                     fileDto.File.FileName,
@@ -52,16 +50,14 @@ namespace FileStorageApp.API.Controllers
         /// </summary>
         /// <param name="fileDto">The file to upload</param>
         /// <returns>Details of the uploaded file</returns>
-        [HttpPost("uploadWfilename")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPost("upload-2")]
         public async Task<ActionResult<FileDto>> UploadFileWithFileName([FromBody] CreateFileWithNameDto fileDto)
         {
-            if (string.IsNullOrWhiteSpace(fileDto.FileName))
-                return BadRequest("No file uploaded.");
-
             try
             {
+                if (string.IsNullOrWhiteSpace(fileDto.FileName))
+                    return BadRequest("No file uploaded.");
+
                 var uploadResult = await _fileService.UploadFileAsync(
                 new MemoryStream(),
                 fileDto.FileName,
@@ -83,8 +79,6 @@ namespace FileStorageApp.API.Controllers
         /// <param name="fileId">Unique identifier of the file</param>
         /// <returns>File metadata</returns>
         [HttpGet("{fileId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<FileDto>> GetFileMetadata(Guid fileId)
         {
             var file = await _fileService.GetFileMetadataAsync(fileId);
@@ -101,8 +95,6 @@ namespace FileStorageApp.API.Controllers
         /// <param name="fileId">Unique identifier of the file</param>
         /// <returns>File download</returns>
         [HttpGet("download/{fileId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DownloadFile(Guid fileId)
         {
             var fileStream = await _fileService.DownloadFileAsync(fileId);
@@ -120,8 +112,6 @@ namespace FileStorageApp.API.Controllers
         /// <param name="fileId">Unique identifier of the file</param>
         /// <returns>Deletion result</returns>
         [HttpDelete("{fileId}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteFile(Guid fileId)
         {
             var deleted = await _fileService.DeleteFileAsync(fileId);
@@ -134,8 +124,6 @@ namespace FileStorageApp.API.Controllers
         /// <param name="fileId">Unique identifier of the file</param>
         /// <returns>List of file versions</returns>
         [HttpGet("{fileId}/versions")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<FileVersionDto>>> GetFileVersions(Guid fileId)
         {
             var versions = await _fileService.GetFileVersionsAsync(fileId);

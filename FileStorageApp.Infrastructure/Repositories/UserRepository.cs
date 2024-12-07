@@ -39,5 +39,9 @@ namespace FileStorageApp.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<IEnumerable<User>> GetUsersAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
     }
 }

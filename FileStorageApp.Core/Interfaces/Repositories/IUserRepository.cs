@@ -6,6 +6,6 @@ namespace FileStorageApp.Core.Interfaces
     {
         Task<User> AddAsync(User user);
         Task<User?> GetUserByUsernameAsync(string username);
-
+        Task<IEnumerable<User>> GetUsersAsync();
     }
 }
