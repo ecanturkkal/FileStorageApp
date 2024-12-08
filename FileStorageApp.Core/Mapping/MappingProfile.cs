@@ -24,6 +24,10 @@ namespace FileStorageApp.Core.Mapping
                 .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner.Username))
                 .ForMember(dest => dest.FileCount, opt => opt.MapFrom(src => src.Files.Count))
                 .ForMember(dest => dest.SubfolderCount, opt => opt.MapFrom(src => src.Subfolders.Count));
+
+            CreateMap<Share, ShareDto>()
+                .ForMember(dest => dest.SharedByName, opt => opt.MapFrom(src => src.SharedBy.Username))
+                .ForMember(dest => dest.SharedWithName, opt => opt.MapFrom(src => src.SharedWith.Username));
         }
     }
 }

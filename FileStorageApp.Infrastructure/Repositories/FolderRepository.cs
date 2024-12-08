@@ -40,11 +40,21 @@ namespace FileStorageApp.Infrastructure.Repositories
             {
                 var folder = await _context.Folders
                     .Include(f => f.Files)
-                    .Include(f => f.Subfolders)
+                    .Include(f => f.Shares)
                     .FirstOrDefaultAsync(f => f.Id == folderId);
 
                 if (folder == null)
                     return false;
+
+                foreach (var file in folder.Files)
+                {
+                    _context.Files.Remove(file);
+                }
+
+                foreach (var share in folder.Shares)
+                {
+                    _context.Shares.Remove(share);
+                }
 
                 _context.Folders.Remove(folder);
                 await _context.SaveChangesAsync();
@@ -59,7 +69,7 @@ namespace FileStorageApp.Infrastructure.Repositories
                 throw new FileStorageException("Failed to delete folder", ex);
             }
         }
-        
+
         public async Task<Folder?> GetByIdAsync(Guid folderId)
         {
             return await _context.Folders.Include(f => f.Owner)

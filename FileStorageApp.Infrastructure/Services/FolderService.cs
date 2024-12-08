@@ -12,6 +12,7 @@ namespace FileStorageApp.Infrastructure.Services
         private readonly IFolderRepository _folderRepository;
         private readonly IUserService _userService;
         private readonly IAzureBlobService _blobService;
+        private readonly ISharingService _sharingService;
         private readonly ILogger<FolderService> _logger;
         private readonly IMapper _mapper;
 
@@ -19,12 +20,14 @@ namespace FileStorageApp.Infrastructure.Services
             IFolderRepository folderRepository,
             IUserService userService,
             IAzureBlobService blobService,
+            ISharingService sharingService,
             ILogger<FolderService> logger,
             IMapper mapper)
         {
             _folderRepository = folderRepository;
             _userService = userService;
             _blobService = blobService;
+            _sharingService = sharingService;
             _logger = logger;
             _mapper = mapper;
         }
@@ -87,7 +90,18 @@ namespace FileStorageApp.Infrastructure.Services
             if (folder == null)
                 throw new FileStorageException($"Folder with ID {folderId} not found.");
 
-            await _blobService.DeleteBlobAsync(folder.StoragePath);
+            if (folder.Subfolders.Count > 0)
+                throw new FileStorageException($"Folder includes subfolders. Cannot deleted.");
+
+            // Check user permissions
+            var hasPermission = await _sharingService.HasUserResourceAccessPermissions(folderId, folder.OwnerId);
+            if (!hasPermission)
+                throw new FileStorageException("You do not have permission to access this file.");
+
+            foreach (var file in folder.Files)
+            {
+                await _blobService.DeleteBlobAsync(file.StoragePath);
+            }
 
             var result = await _folderRepository.DeleteAsync(folderId);
             return result;

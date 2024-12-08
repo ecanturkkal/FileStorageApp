@@ -102,7 +102,9 @@ namespace FileStorageApp.Infrastructure.Services
                 throw new FileStorageException($"File with ID {fileId} not found.");
 
             // Check user permissions
-            CheckFileAccessPermissions(file);
+            var hasPermission = await _sharingService.HasUserResourceAccessPermissions(fileId, file.OwnerId);
+            if (!hasPermission)
+                throw new FileStorageException("You do not have permission to access this file.");
 
             // Download from blob storage
             return await _blobService.DownloadBlobAsync(file.StoragePath);
@@ -114,6 +116,11 @@ namespace FileStorageApp.Infrastructure.Services
 
             if (file == null)
                 throw new FileStorageException($"File with ID {fileId} not found.");
+
+            // Check user permissions
+            var hasPermission = await _sharingService.HasUserResourceAccessPermissions(fileId, file.OwnerId);
+            if (!hasPermission)
+                throw new FileStorageException("You do not have permission to access this file.");
 
             await _blobService.DeleteBlobAsync(file.StoragePath);
             var result = await _fileRepository.DeleteAsync(fileId);
@@ -128,19 +135,6 @@ namespace FileStorageApp.Infrastructure.Services
                 throw new FileStorageException($"File with ID {fileId} not found.");
 
             return _mapper.Map<FileDto>(file);
-        }
-
-        private void CheckFileAccessPermissions(File file)
-        {
-            var currentUserId = _userService.GetCurrentUserId();
-
-            // Check if user is the owner or has been granted access
-            if (file.OwnerId != currentUserId)
-            {
-                bool hasPermisson = _sharingService.HasSharePermission(file.Id, currentUserId);
-                if (!hasPermisson)
-                    throw new UnauthorizedAccessException("You do not have permission to access this file.");
-            }
         }
     }
 }

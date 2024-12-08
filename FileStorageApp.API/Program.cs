@@ -44,6 +44,7 @@ public class Program
         builder.Services.AddScoped<IFileRepository, FileRepository>();
         builder.Services.AddScoped<IFolderRepository, FolderRepository>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IShareRepository, ShareRepository>();
 
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IFileService, FileService>();
@@ -77,7 +78,7 @@ public class Program
         {
             c.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "File Storage Service API",
+                Title = "File Storage App API",
                 Version = "v1"
             });
 
@@ -126,7 +127,7 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "File Storage Service API v1"));
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "File Storage App API v1"));
             app.UseDeveloperExceptionPage();
         }
 

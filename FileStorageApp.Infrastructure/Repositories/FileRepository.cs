@@ -54,6 +54,7 @@ namespace FileStorageApp.Infrastructure.Repositories
             {
                 var file = await _context.Files
                     .Include(f => f.Versions)
+                    .Include(f => f.Shares)
                     .FirstOrDefaultAsync(f => f.Id == fileId);
 
                 if (file == null)

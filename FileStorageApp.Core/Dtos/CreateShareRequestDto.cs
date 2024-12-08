@@ -6,7 +6,7 @@ namespace FileStorageApp.Core.Dtos
     {
         public Guid ResourceId { get; set; }
         public ResourceType ResourceType { get; set; }
-        public required string SharedWithEmail { get; set; }
+        public Guid SharedWithId { get; set; }
         public SharePermission Permission { get; set; }
         public DateTime? ExpiresAt { get; set; }
     }
