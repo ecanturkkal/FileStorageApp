@@ -112,6 +112,10 @@ The API uses JWT (JSON Web Token) authentication. Clients must include the Beare
 
 ### Key DTOs
 
+#### LoginDto
+- `username`: string
+- `password`: string
+  
 #### UserDto
 - `id`: UUID
 - `username`: string
