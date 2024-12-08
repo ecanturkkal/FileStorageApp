@@ -101,14 +101,14 @@ The API uses JWT (JSON Web Token) authentication. Clients must include the Beare
 ## Data Models
 
 ### ResourceType Enum
-- `0`: Unspecified
-- `1`: Another Type
+- `0`: File
+- `1`: Folder
 
 ### SharePermission Enum
-- `0`: Read
-- `1`: Write
-- `2`: Execute
-- `3`: Delete
+- `0`: None
+- `1`: View
+- `2`: Edit
+- `3`: Owner
 
 ### Key DTOs
 
