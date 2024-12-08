@@ -1,5 +1,4 @@
 using Azure.Storage.Blobs;
-using FileStorageApp.API.Extensions;
 using FileStorageApp.Core.Interfaces;
 using FileStorageApp.Core.Mapping;
 using FileStorageApp.Infrastructure.Data;
@@ -51,6 +50,8 @@ public class Program
         builder.Services.AddScoped<IFolderService, FolderService>();
         builder.Services.AddScoped<ISharingService, SharingService>();
         builder.Services.AddScoped<IAzureBlobService, AzureBlobService>();
+        builder.Services.AddScoped<ITokenService, TokenService>();
+
 
         builder.Services.AddAutoMapper(typeof(MappingProfile));
 

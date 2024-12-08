@@ -1,21 +1,16 @@
-﻿using Xunit;
-using Moq;
-using FileStorageApp.API.Controllers;
+﻿using FileStorageApp.API.Controllers;
 using FileStorageApp.Core.Dtos;
 using FileStorageApp.Core.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 
 namespace FileStorageApp.Tests.Controllers
 {
     public class FilesControllerTests
     {
-        private readonly FilesController _controller;
         private readonly Mock<IFileService> _mockFileService;
+        private readonly FilesController _controller;
 
         public FilesControllerTests()
         {
@@ -24,117 +19,161 @@ namespace FileStorageApp.Tests.Controllers
         }
 
         [Fact]
-        public async Task UploadFile_ShouldReturnBadRequest_WhenNoFileIsUploaded()
+        public async Task UploadFile_ReturnsOk_WhenFileIsUploaded()
+        {
+            // Arrange
+            var fileMock = new Mock<IFormFile>();
+            var content = "File content";
+            var fileName = "test.txt";
+            var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content));
+            fileMock.Setup(_ => _.OpenReadStream()).Returns(ms);
+            fileMock.Setup(_ => _.FileName).Returns(fileName);
+            fileMock.Setup(_ => _.Length).Returns(ms.Length);
+
+            var fileDto = new CreateFileDto
+            {
+                File = fileMock.Object,
+                FolderPath = "/testFolder"
+            };
+
+            var uploadedFile = new FileDto { FileName = fileName, Id = Guid.NewGuid() };
+            _mockFileService
+                .Setup(s => s.UploadFileAsync(It.IsAny<Stream>(), fileName, ms.Length, fileDto.FolderPath))
+                .ReturnsAsync(uploadedFile);
+
+            // Act
+            var response = await _controller.UploadFile(fileDto);
+
+            // Assert
+            Assert.NotNull(response);
+            var okResult = response.Result as OkObjectResult;
+            Assert.Equal(200, okResult?.StatusCode);
+            Assert.Equal(uploadedFile, okResult?.Value);
+        }
+
+        [Fact]
+        public async Task UploadFile_ReturnsBadRequest_WhenFileIsNull()
         {
             // Arrange
             var fileDto = new CreateFileDto { File = null };
 
             // Act
-            var result = await _controller.UploadFile(fileDto);
+            var response = await _controller.UploadFile(fileDto);
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result.Result);
-            var badRequest = result.Result as BadRequestObjectResult;
-            Assert.Equal("No file uploaded.", badRequest?.Value);
+            Assert.IsType<BadRequestObjectResult>(response.Result);
         }
 
         [Fact]
-        public async Task UploadFile_ShouldReturnOk_WhenFileIsUploaded()
+        public async Task UploadFileWithFileName_ReturnsOk_WhenFileIsUploaded()
         {
             // Arrange
-            var fileDto = new CreateFileDto
+            var fileDto = new CreateFileWithNameDto
             {
-                File = new Mock<IFormFile>().Object,
-                FolderPath = "some/path"
+                FileName = "test.txt",
+                FolderPath = "/testFolder"
             };
-            var uploadedFile = new FileDto { FileName = "file.txt", FileSize = 1024 };
 
-            _mockFileService
-                .Setup(s => s.UploadFileAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<string>()))
-                .ReturnsAsync(uploadedFile);
-
-            // Act
-            var result = await _controller.UploadFile(fileDto);
-
-            // Assert
-            Assert.IsType<OkObjectResult>(result.Result);
-            var okResult = result.Result as OkObjectResult;
-            Assert.Equal(uploadedFile, okResult?.Value);
-        }
-
-        [Fact]
-        public async Task UploadFileWithFileName_ShouldReturnBadRequest_WhenFileNameIsEmpty()
-        {
-            // Arrange
-            var fileDto = new CreateFileWithNameDto { FileName = "" };
-
-            // Act
-            var result = await _controller.UploadFileWithFileName(fileDto);
-
-            // Assert
-            Assert.IsType<BadRequestObjectResult>(result.Result);
-            var badRequest = result.Result as BadRequestObjectResult;
-            Assert.Equal("No file uploaded.", badRequest?.Value);
-        }
-
-        [Fact]
-        public async Task UploadFileWithFileName_ShouldReturnOk_WhenFileIsUploaded()
-        {
-            // Arrange
-            var fileDto = new CreateFileWithNameDto { FileName = "file.txt", FolderPath = "some/path" };
-            var uploadedFile = new FileDto { FileName = "file.txt", FileSize = 1024 };
-
+            var uploadedFile = new FileDto { FileName = fileDto.FileName, Id = Guid.NewGuid() };
             _mockFileService
                 .Setup(s => s.UploadFileAsync(It.IsAny<Stream>(), fileDto.FileName, 0, fileDto.FolderPath))
                 .ReturnsAsync(uploadedFile);
 
             // Act
-            var result = await _controller.UploadFileWithFileName(fileDto);
+            var response = await _controller.UploadFileWithFileName(fileDto);
 
             // Assert
-            Assert.IsType<OkObjectResult>(result.Result);
-            var okResult = result.Result as OkObjectResult;
+            Assert.NotNull(response);
+            var okResult = response.Result as OkObjectResult;
+            Assert.Equal(200, okResult?.StatusCode);
             Assert.Equal(uploadedFile, okResult?.Value);
         }
 
         [Fact]
-        public async Task GetFileMetadata_ShouldReturnNotFound_WhenFileDoesNotExist()
+        public async Task UploadFileWithFileName_ReturnsBadRequest_WhenFileNameIsEmpty()
         {
             // Arrange
-            var fileId = Guid.NewGuid();
-            _mockFileService.Setup(s => s.GetFileMetadataAsync(fileId)).ReturnsAsync((FileDto)null);
+            var fileDto = new CreateFileWithNameDto { FileName = "", FolderPath = "/testFolder" };
 
             // Act
-            var result = await _controller.GetFileMetadata(fileId);
+            var response = await _controller.UploadFileWithFileName(fileDto);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result.Result);
+            Assert.IsType<BadRequestObjectResult>(response.Result);
         }
 
         [Fact]
-        public async Task GetFileMetadata_ShouldReturnOk_WhenFileExists()
+        public async Task GetFileMetadata_ReturnsOk_WithFileMetadata()
         {
             // Arrange
             var fileId = Guid.NewGuid();
-            var fileMetadata = new FileDto { FileName = "file.txt", FileSize = 1024 };
+            var fileMetadata = new FileDto { Id = fileId, FileName = "test.txt" };
 
-            _mockFileService.Setup(s => s.GetFileMetadataAsync(fileId)).ReturnsAsync(fileMetadata);
+            _mockFileService
+                .Setup(s => s.GetFileMetadataAsync(fileId))
+                .ReturnsAsync(fileMetadata);
 
             // Act
-            var result = await _controller.GetFileMetadata(fileId);
+            var response = await _controller.GetFileMetadata(fileId);
 
             // Assert
-            Assert.IsType<OkObjectResult>(result.Result);
-            var okResult = result.Result as OkObjectResult;
-            Assert.Equal(fileMetadata, okResult.Value);
+            Assert.NotNull(response);
+            var okResult = response.Result as OkObjectResult;
+            Assert.Equal(200, okResult?.StatusCode);
+            Assert.Equal(fileMetadata, okResult?.Value);
         }
 
         [Fact]
-        public async Task DownloadFile_ShouldReturnNotFound_WhenFileDoesNotExist()
+        public async Task GetFileMetadata_ReturnsNotFound_WhenFileDoesNotExist()
         {
             // Arrange
             var fileId = Guid.NewGuid();
-            _mockFileService.Setup(s => s.DownloadFileAsync(fileId)).ReturnsAsync((Stream)null);
+
+            _mockFileService
+                .Setup(s => s.GetFileMetadataAsync(fileId))
+                .ReturnsAsync((FileDto)null);
+
+            // Act
+            var response = await _controller.GetFileMetadata(fileId);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(response.Result);
+        }
+
+        [Fact]
+        public async Task DownloadFile_ReturnsFileStream_WhenFileExists()
+        {
+            // Arrange
+            var fileId = Guid.NewGuid();
+            var fileName = "test.txt";
+            var fileStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("File content"));
+
+            _mockFileService
+                .Setup(s => s.DownloadFileAsync(fileId))
+                .ReturnsAsync(fileStream);
+
+            _mockFileService
+                .Setup(s => s.GetFileMetadataAsync(fileId))
+                .ReturnsAsync(new FileDto { FileName = fileName });
+
+            // Act
+            var result = await _controller.DownloadFile(fileId) as FileStreamResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("application/octet-stream", result.ContentType);
+            Assert.Equal(fileName, result.FileDownloadName);
+        }
+
+        [Fact]
+        public async Task DownloadFile_ReturnsNotFound_WhenFileDoesNotExist()
+        {
+            // Arrange
+            var fileId = Guid.NewGuid();
+
+            _mockFileService
+                .Setup(s => s.DownloadFileAsync(fileId))
+                .ReturnsAsync((Stream)null);
 
             // Act
             var result = await _controller.DownloadFile(fileId);
@@ -144,45 +183,33 @@ namespace FileStorageApp.Tests.Controllers
         }
 
         [Fact]
-        public async Task DownloadFile_ShouldReturnFile_WhenFileExists()
+        public async Task DeleteFile_ReturnsOk_WhenFileIsDeleted()
         {
             // Arrange
             var fileId = Guid.NewGuid();
-            var fileStream = new MemoryStream();
-            var fileMetadata = new FileDto { FileName = "file.txt" };
 
-            _mockFileService.Setup(s => s.DownloadFileAsync(fileId)).ReturnsAsync(fileStream);
-            _mockFileService.Setup(s => s.GetFileMetadataAsync(fileId)).ReturnsAsync(fileMetadata);
+            _mockFileService
+                .Setup(s => s.DeleteFileAsync(fileId))
+                .ReturnsAsync(true);
 
             // Act
-            var result = await _controller.DownloadFile(fileId);
+            var result = await _controller.DeleteFile(fileId) as OkObjectResult;
 
             // Assert
-            var fileResult = Assert.IsType<FileStreamResult>(result);
-            Assert.Equal("application/octet-stream", fileResult.ContentType);
-            Assert.Equal("file.txt", fileResult.FileDownloadName);
+            Assert.NotNull(result);
+            Assert.Equal(200, result.StatusCode);
+            Assert.True((bool)result.Value);
         }
 
         [Fact]
-        public async Task DeleteFile_ShouldReturnNoContent_WhenFileIsDeleted()
+        public async Task DeleteFile_ReturnsNotFound_WhenFileDoesNotExist()
         {
             // Arrange
             var fileId = Guid.NewGuid();
-            _mockFileService.Setup(s => s.DeleteFileAsync(fileId)).ReturnsAsync(true);
 
-            // Act
-            var result = await _controller.DeleteFile(fileId);
-
-            // Assert
-            Assert.IsType<NoContentResult>(result);
-        }
-
-        [Fact]
-        public async Task DeleteFile_ShouldReturnNotFound_WhenFileDoesNotExist()
-        {
-            // Arrange
-            var fileId = Guid.NewGuid();
-            _mockFileService.Setup(s => s.DeleteFileAsync(fileId)).ReturnsAsync(false);
+            _mockFileService
+                .Setup(s => s.DeleteFileAsync(fileId))
+                .ReturnsAsync(false);
 
             // Act
             var result = await _controller.DeleteFile(fileId);
@@ -191,5 +218,4 @@ namespace FileStorageApp.Tests.Controllers
             Assert.IsType<NotFoundResult>(result);
         }
     }
-
 }

@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly TokenService _tokenService;
+    private readonly ITokenService _tokenService;
     private readonly IUserService _userService;
 
-    public AuthController(TokenService tokenService, IUserService userService)
+    public AuthController(ITokenService tokenService, IUserService userService)
     {
         _tokenService = tokenService;
         _userService = userService;
