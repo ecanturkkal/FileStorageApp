@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ master ]
+    branches: [ your_main_branch ]
   pull_request:
-    branches: [ master ]
+    branches: [ your_main_branch ]
 
 env:
   AZURE_WEBAPP_NAME: your-app-service-name
