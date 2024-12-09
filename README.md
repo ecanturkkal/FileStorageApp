@@ -10,7 +10,7 @@ FileStorageApp is a robust application designed to manage, store, and share file
 - **Secure Sharing:** Share files securely with other users or generate public links.
 - **Version Control:** Keep track of file updates with built-in version management.
 - **Search & Filters:** Quickly locate files using advanced search and filtering options.
-- **Authorization & Privacy:** Protected by role-based access control (RBAC) and encryption for user privacy.
+- **Authorization & Privacy:** Protected by role-based access control (RBAC) for user privacy.
 
 ---
 
@@ -23,7 +23,6 @@ FileStorageApp is a robust application designed to manage, store, and share file
 - **Azure SQL Server**
 
 ### Additional Tools:
-- **Docker** (Containerization)
 - **Azure Blob Storage** (File hosting)
 - **JWT** (Authentication)
 
@@ -34,7 +33,7 @@ FileStorageApp is a robust application designed to manage, store, and share file
 ### Prerequisites:
 1. Install [.NET SDK](https://dotnet.microsoft.com/download/dotnet)
 2. Set up a local or remote SQL Server instance.
-3. Set up Azure Blog Storage Container.
+3. Set up an Azure Blog Storage Container.
 4. Optionally, configure [Docker](https://www.docker.com/) for containerized environments.
 
 ### Package Dependencies
